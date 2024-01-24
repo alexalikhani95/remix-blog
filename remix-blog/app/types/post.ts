@@ -5,6 +5,6 @@ export type PostType = {
     _rev: string;
     _type: string;
     _createdAt: string;
-    _updatedAt: string;
+    _updatedAt?: string;
     _originalId?: string | undefined;
 }
