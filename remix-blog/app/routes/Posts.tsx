@@ -5,7 +5,6 @@ import { useLoaderData } from '@remix-run/react';
 
 export async function loader() {
   const data = client.fetch(`*[_type == "post"]`)
-    console.log(data)
     return data
 }
 
@@ -15,7 +14,8 @@ const Posts = () => {
 
   return (
     <>
-    <div>Posts</div>
+    <div className='flex flex-col items-center'>
+        <h2 className='mb-5'>Posts</h2>
     {posts.length && posts.map((post: PostType) => {
         return (
             <div key={post._id}>
@@ -23,6 +23,7 @@ const Posts = () => {
             </div>
         )
     })}
+    </div>
     </>
   )
 }
