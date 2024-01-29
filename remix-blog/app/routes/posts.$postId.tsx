@@ -1,14 +1,14 @@
 import "../types/post";
 import client from "../sanity/client";
 
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Link } from "@remix-run/react";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const postId = params.postId;
 
   const data = await client.fetch(`*[_id == "${postId}"]`);
+   
   return data;
 }
 
