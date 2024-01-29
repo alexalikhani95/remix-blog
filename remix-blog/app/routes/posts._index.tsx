@@ -37,11 +37,11 @@ const Posts = () => {
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-semibold mb-5">Blog Posts</h2>
         <label className="block mb-4">
-          <h3 className="mb-2">Search</h3>
+          <h3 className="mb-2">Search for post</h3>
           <input
             type="text"
             className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:border-blue-500"
-            placeholder="Search..."
+            placeholder="Title..."
             onChange={(e) => handleSearch(e.target.value)}
             value={searchParams.get("search") || ""}
           />
