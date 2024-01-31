@@ -3,23 +3,63 @@ import client from "../sanity/client";
 import { PostType } from "../types/post";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
-export async function loader({ request}: LoaderFunctionArgs) {
-  const data = client.fetch(`*[_type == "post"]`);
-
-  const searchParams = new URL(request.url).searchParams;
-
-  const searchOption = searchParams.get("search");
-
-  if (searchOption) {
-    return data.then((posts: PostType[]) => {
-      return posts.filter((post) => {
-        return post?.title?.toLowerCase().includes(searchOption.toLowerCase());
-      });
-    });
+export async function loader({ request }: LoaderFunctionArgs) {
+    const data: PostType[] = await client.fetch(`*[_type == "post"]`);
+  
+    const searchParams = new URL(request.url).searchParams;
+    const searchOption = searchParams.get("search");
+    const sortOption = searchParams.get("sort"); 
+  
+    if (searchOption) {
+      let filteredData = data.filter((post) =>
+        post.title?.toLowerCase().includes(searchOption.toLowerCase())
+      );
+  
+      if (sortOption) {
+        if (sortOption === "a-z") {
+          filteredData = filteredData.sort((a, b) =>
+            a.title.localeCompare(b.title)
+          );
+        } if (sortOption === "z-a") {
+          filteredData = filteredData.sort((a, b) =>
+            b.title.localeCompare(a.title)
+          );
+        } if (sortOption === "oldest") {
+          filteredData = filteredData.sort(
+            (a, b) =>
+              new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime()
+          );
+        } if (sortOption === "recent") {
+          filteredData = filteredData.sort(
+            (a, b) =>
+              new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime()
+          );
+        }
+      }
+  
+      return filteredData;
+    }
+  
+    // Apply sorting if sortOption exists and no search is performed
+    if (sortOption) {
+      if (sortOption === "a-z") {
+        return data.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortOption === "z-a") {
+        return data.sort((a, b) => b.title.localeCompare(a.title));
+      } else if (sortOption === "oldest") {
+        return data.sort(
+          (a, b) => new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime()
+        );
+      } else if (sortOption === "recent") {
+        return data.sort(
+          (a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime()
+        );
+      }
+    }
+  
+    return data;
   }
-
-  return data;
-}
+  
 
 const Posts = () => {
   const posts = useLoaderData<typeof loader>();
@@ -27,8 +67,25 @@ const Posts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = (search: string) => {
+    const newSearchParams = new URLSearchParams();
+  
+    // Add search parameter
+    newSearchParams.set("search", search);
+  
+    // keep the sorted order even when searching
+    const sortOption = searchParams.get("sort");
+    if (sortOption) {
+      newSearchParams.set("sort", sortOption);
+    }
+  
+    setSearchParams(newSearchParams);
+  };
+  
+  
+
+  const handleSort = (sort: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set("search", search);
+    params.set("sort", sort);
     setSearchParams(params);
   };
 
@@ -36,6 +93,20 @@ const Posts = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-semibold mb-5">Blog Posts</h2>
+        <label className="block mb-4">
+          <h3 className="mb-2">Sort by</h3>
+          <select
+            onChange={(e) => handleSort(e.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+            name="sort"
+            value={searchParams.get("sort") || "recent"}
+          >
+            <option value="a-z">A-Z</option>
+            <option value="z-a">Z-A</option>
+            <option value="oldest">Oldest</option>
+            <option value="recent">Recent</option>
+          </select>
+        </label>
         <label className="block mb-4">
           <h3 className="mb-2">Search for post</h3>
           <input
@@ -46,8 +117,8 @@ const Posts = () => {
             value={searchParams.get("search") || ""}
           />
         </label>
-        {posts.length ?
-          posts.map((post: PostType) => (
+        {posts.length ? (
+          posts.map((post) => (
             <Link to={`/posts/${post._id}`} key={post._id}>
               <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer transition duration-300 hover:shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -56,9 +127,9 @@ const Posts = () => {
               </div>
             </Link>
           ))
-          :
+        ) : (
           <p className="text-gray-600">No posts found.</p>
-        }
+        )}
       </div>
     </div>
   );
