@@ -3,62 +3,44 @@ import client from "../sanity/client";
 import { PostType } from "../types/post";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-    const data: PostType[] = await client.fetch(`*[_type == "post"]`);
-  
-    const searchParams = new URL(request.url).searchParams;
-    const searchOption = searchParams.get("search");
-    const sortOption = searchParams.get("sort"); 
-  
-    if (searchOption) {
-      let filteredData = data.filter((post) =>
-        post.title?.toLowerCase().includes(searchOption.toLowerCase())
-      );
-  
-      if (sortOption) {
-        if (sortOption === "a-z") {
-          filteredData = filteredData.sort((a, b) =>
-            a.title.localeCompare(b.title)
-          );
-        } if (sortOption === "z-a") {
-          filteredData = filteredData.sort((a, b) =>
-            b.title.localeCompare(a.title)
-          );
-        } if (sortOption === "oldest") {
-          filteredData = filteredData.sort(
-            (a, b) =>
-              new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime()
-          );
-        } if (sortOption === "recent") {
-          filteredData = filteredData.sort(
-            (a, b) =>
-              new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime()
-          );
-        }
-      }
-  
-      return filteredData;
-    }
-  
-    // Apply sorting if sortOption exists and no search is performed
-    if (sortOption) {
-      if (sortOption === "a-z") {
-        return data.sort((a, b) => a.title.localeCompare(b.title));
-      } else if (sortOption === "z-a") {
-        return data.sort((a, b) => b.title.localeCompare(a.title));
-      } else if (sortOption === "oldest") {
-        return data.sort(
-          (a, b) => new Date(a._createdAt).getTime() - new Date(b._createdAt).getTime()
-        );
-      } else if (sortOption === "recent") {
-        return data.sort(
-          (a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime()
-        );
-      }
-    }
-  
-    return data;
+const fetchPosts = async (sortOption: string) => {
+  let query = `*[_type == "post"]`;
+  if (sortOption === "a-z") {
+    query = `${query} | order(title asc)`;
+  } else if (sortOption === "z-a") {
+    query = `${query} | order(title desc)`;
+  } else if (sortOption === "oldest") {
+    query = `${query} | order(_createdAt asc)`;
+  } else if (sortOption === "recent") {
+    query = `${query} | order(_createdAt desc)`;
   }
+  const data = await client.fetch(query);
+  return data;
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const searchParams = new URL(request.url).searchParams;
+  const searchOption = searchParams.get("search");
+  const sortOption = searchParams.get("sort") || "recent"; // recent as the default sort option
+  
+  let posts: PostType[];
+
+
+  if (searchOption) {
+    // Fetch posts with search option applied
+    posts = await fetchPosts(sortOption);
+    // Filter posts based on search option
+    posts = posts.filter((post) =>
+      post.title?.toLowerCase().includes(searchOption.toLowerCase())
+    );
+  } else {
+    // Fetch posts without search option
+    posts = await fetchPosts(sortOption);
+  }
+
+  return posts;
+}
+
   
 
 const Posts = () => {

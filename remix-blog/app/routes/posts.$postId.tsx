@@ -6,14 +6,14 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 export async function loader({ params }: LoaderFunctionArgs) {
   const postId = params.postId;
 
-  const data = await client.fetch(`*[_id == "${postId}"]`);
+  const data = await client.fetch(`*[_id == "${postId}"][0]`);
 
   return data;
 }
 
 const Post = () => {
   const data = useLoaderData<typeof loader>();
-  const post = data[0];
+  const post = data;
 
   return (
     <div className="container mx-auto px-4 py-8">
