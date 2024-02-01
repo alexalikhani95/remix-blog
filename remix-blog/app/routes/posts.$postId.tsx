@@ -6,7 +6,12 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 export async function loader({ params }: LoaderFunctionArgs) {
   const postId = params.postId;
 
-  const data = await client.fetch(`*[_id == "${postId}"][0]`);
+  const data = await client.fetch(`*[_id == "${postId}"]{
+    _id,
+    title,
+    _createdAt,
+    body
+  }[0]`);
 
   return data;
 }

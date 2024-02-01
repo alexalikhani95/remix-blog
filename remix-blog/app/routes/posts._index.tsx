@@ -4,7 +4,11 @@ import { PostType } from "../types/post";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
 const fetchPosts = async (sortOption: string) => {
-  let query = `*[_type == "post"]`;
+  let query = `*[_type == "post"] {
+    _id,
+    title,
+    _createdAt
+  }`;
   if (sortOption === "a-z") {
     query = `${query} | order(title asc)`;
   } else if (sortOption === "z-a") {
