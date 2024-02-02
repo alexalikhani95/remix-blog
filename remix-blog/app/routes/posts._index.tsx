@@ -3,49 +3,40 @@ import client from "../sanity/client";
 import { PostType } from "../types/post";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 
-const fetchPosts = async (sortOption: string) => {
-  let query = `*[_type == "post"] {
-    _id,
-    title,
-    _createdAt
-  }`;
-  if (sortOption === "a-z") {
-    query = `${query} | order(title asc)`;
-  } else if (sortOption === "z-a") {
-    query = `${query} | order(title desc)`;
-  } else if (sortOption === "oldest") {
-    query = `${query} | order(_createdAt asc)`;
-  } else if (sortOption === "recent") {
-    query = `${query} | order(_createdAt desc)`;
-  }
-  const data = await client.fetch(query);
-  return data;
-}
-
 export async function loader({ request }: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
   const searchOption = searchParams.get("search");
   const sortOption = searchParams.get("sort") || "recent"; // recent as the default sort option
   
-  let posts: PostType[];
-
+  let query = `*[_type == "post"]{
+    _id,
+    title,
+    _createdAt
+  }`;
 
   if (searchOption) {
-    // Fetch posts with search option applied
-    posts = await fetchPosts(sortOption);
-    // Filter posts based on search option
-    posts = posts.filter((post) =>
-      post.title?.toLowerCase().includes(searchOption.toLowerCase())
-    );
-  } else {
-    // Fetch posts without search option
-    posts = await fetchPosts(sortOption);
+    query = `*[_type == "post" && (title match "${searchOption}*")]{
+      _id,
+      title,
+      _createdAt
+    }`;
+
   }
 
+  // Apply sorting based on sortOption
+  if (sortOption === "a-z") {
+    query = `${query} | order(lower(title) asc)`;
+  } else if (sortOption === "z-a") {
+    query = `${query} | order(lower(title) desc)`;
+  } else if (sortOption === "oldest") {
+    query = `${query} | order(_createdAt asc)`;
+  } else if (sortOption === "recent") {
+    query = `${query} | order(_createdAt desc)`;
+  }
+
+  const posts: PostType[] = await client.fetch(query);
   return posts;
 }
-
-  
 
 const Posts = () => {
   const posts = useLoaderData<typeof loader>();
@@ -54,20 +45,18 @@ const Posts = () => {
 
   const handleSearch = (search: string) => {
     const newSearchParams = new URLSearchParams();
-  
+
     // Add search parameter
     newSearchParams.set("search", search);
-  
+
     // keep the sorted order even when searching
     const sortOption = searchParams.get("sort");
     if (sortOption) {
       newSearchParams.set("sort", sortOption);
     }
-  
+
     setSearchParams(newSearchParams);
   };
-  
-  
 
   const handleSort = (sort: string) => {
     const params = new URLSearchParams(searchParams);
