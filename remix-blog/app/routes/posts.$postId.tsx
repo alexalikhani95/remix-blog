@@ -10,7 +10,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
     _id,
     title,
     _createdAt,
-    body
+    body,
+    author->{
+      name
+    }
   }[0]`);
 
   return data;
@@ -34,6 +37,7 @@ const Post = () => {
             {post.title}
           </h2>
         )}
+        {post.author && <p>{post.author.name}</p>}
         {post._createdAt && (
           <p className="mt-2 text-gray-600">
             Published: {new Date(post._createdAt).toLocaleDateString("en-UK")}
