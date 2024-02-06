@@ -31,7 +31,7 @@ const Post = () => {
       </Link>
       <div className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6 mt-5">
         {post.title && (
-          <h2 className="text-2xl font-semibold text-gray-800 bg-blue-500 text-white rounded-md py-2 px-4 mb-2">
+          <h2 className="text-2xl font-semibold text-gray-800 bg-gradient-to-r from-purple-400 to-blue-500 text-white rounded-md py-2 px-4 mb-2">
             {post.title}
           </h2>
         )}

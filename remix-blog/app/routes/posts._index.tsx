@@ -105,7 +105,7 @@ const Posts = () => {
           posts.map((post) => (
             <Link to={`/posts/${post._id}`} key={post._id}>
               <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer transition duration-300 hover:shadow-lg hover:-translate-y-1">
-                <h3 className="text-lg font-semibold text-gray-800 bg-blue-500 text-white rounded-md py-2 px-4 mb-2 hover:underline">
+                <h3 className="text-lg font-semibold text-gray-800 bg-gradient-to-r from-purple-400 to-blue-500 text-white rounded-md py-2 px-4 mb-2 hover:underline">
                   {post.title}
                 </h3>
                 <div className="flex justify-between mb-2">
