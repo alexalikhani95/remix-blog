@@ -7,12 +7,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
   const searchOption = searchParams.get("search");
   const sortOption = searchParams.get("sort") || "recent"; // recent as the default sort option
-  
+
   let query = `*[_type == "post"]{
     _id,
     title,
     _createdAt,
-    body
+    body,
+    author->{
+      name
+    }
   }`;
 
   if (searchOption) {
@@ -20,9 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       _id,
       title,
       _createdAt,
-      body
+      body,
+      author->{
+        name
+      }
     }`;
-
   }
 
   // Apply sorting based on sortOption
@@ -67,14 +72,14 @@ const Posts = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="mx-auto px-4 py-8 bg-blue-50">
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-semibold mb-5">Blog Posts</h2>
         <label className="block mb-4">
-          <h3 className="mb-2">Sort by</h3>
+          <h3 className="mb-2 text-blue-600 font-bold">Sort by</h3>
           <select
             onChange={(e) => handleSort(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
+            className="bg-blue-100 border border-blue-300 text-blue-900 text-lg rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 transition duration-300 ease-in-out hover:bg-blue-200"
             name="sort"
             value={searchParams.get("sort") || "recent"}
           >
@@ -84,16 +89,18 @@ const Posts = () => {
             <option value="recent">Recent</option>
           </select>
         </label>
+
         <label className="block mb-4">
-          <h3 className="mb-2">Search for post</h3>
+          <h3 className="mb-2 text-purple-600 font-bold">Search for a Post</h3>
           <input
             type="text"
-            className="p-2 border border-gray-300 rounded w-full focus:outline-none focus:border-blue-500"
-            placeholder="Title..."
+            className="p-2 border border-purple-400 rounded-lg w-full focus:outline-none focus:border-purple-600 transition duration-300 ease-in-out hover:bg-purple-100"
+            placeholder="Search by title..."
             onChange={(e) => handleSearch(e.target.value)}
             value={searchParams.get("search") || ""}
           />
         </label>
+
         {posts.length ? (
           posts.map((post) => (
             <Link to={`/posts/${post._id}`} key={post._id}>
@@ -103,11 +110,16 @@ const Posts = () => {
                 </h3>
                 <div className="flex justify-between mb-2">
                   <p className="text-gray-600 font-medium">
-                    Published: {new Date(post._createdAt).toLocaleDateString("en-UK")}
+                  Published: {new Date(post._createdAt).toLocaleDateString("en-UK")}
                   </p>
+                 {post.author && <p>by {post.author.name}</p> }
                 </div>
                 <div className="border-t border-gray-200 pt-2">
-                  <p className="text-gray-700">{post.body[0].children[0].text}</p>
+                  <p className="text-gray-700">
+                    {post.body[0].children[0].text.slice(0, 100)}
+                    {post.body[0].children[0].text.length > 100 ? "..." : ""}
+                  </p>
+                  <p>Read on...</p>
                 </div>
               </div>
             </Link>

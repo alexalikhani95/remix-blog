@@ -1,7 +1,7 @@
 export type PostType = {
     title: string;
     body: any;
-    author?: string;
+    author?: any;
     _id: string;
     _rev: string;
     _type: string;
