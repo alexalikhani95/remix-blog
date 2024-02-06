@@ -11,14 +11,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let query = `*[_type == "post"]{
     _id,
     title,
-    _createdAt
+    _createdAt,
+    body
   }`;
 
   if (searchOption) {
     query = `*[_type == "post" && (title match "${searchOption}*")]{
       _id,
       title,
-      _createdAt
+      _createdAt,
+      body
     }`;
 
   }
@@ -95,10 +97,18 @@ const Posts = () => {
         {posts.length ? (
           posts.map((post) => (
             <Link to={`/posts/${post._id}`} key={post._id}>
-              <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer transition duration-300 hover:shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-800">
+              <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                <h3 className="text-lg font-semibold text-gray-800 bg-blue-500 text-white rounded-md py-2 px-4 mb-2 hover:underline">
                   {post.title}
                 </h3>
+                <div className="flex justify-between mb-2">
+                  <p className="text-gray-600 font-medium">
+                    Published: {new Date(post._createdAt).toLocaleDateString("en-UK")}
+                  </p>
+                </div>
+                <div className="border-t border-gray-200 pt-2">
+                  <p className="text-gray-700">{post.body[0].children[0].text}</p>
+                </div>
               </div>
             </Link>
           ))
