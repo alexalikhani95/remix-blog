@@ -22,7 +22,7 @@ const Post = () => {
   const post = useLoaderData<typeof loader>();
 
   return (
-    <div className="mx-auto px-4 py-8 bg-blue-50">
+    <div className="mx-auto px-4 py-8">
       <Link
         to="/posts"
         className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded inline-block mb-4"

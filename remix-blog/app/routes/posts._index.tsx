@@ -72,7 +72,7 @@ const Posts = () => {
   };
 
   return (
-    <div className="mx-auto px-4 py-8 bg-blue-50">
+    <div className="mx-auto px-4 py-8">
       <div className="max-w-lg mx-auto">
         <h2 className="text-2xl font-semibold mb-5">Blog Posts</h2>
         <label className="block mb-4">
