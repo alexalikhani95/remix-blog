@@ -41,12 +41,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     query = `${query} | order(_createdAt desc)`;
   }
 
-  const posts: PostType[] = await client.fetch(query);
-  return posts;
+  try {
+    const posts: PostType[] = await client.fetch(query);
+    return {posts, error: null}
+  } catch (error: any) {
+    return {posts: null, error: error.message}
+  }
+
 }
 
 const Posts = () => {
-  const posts = useLoaderData<typeof loader>();
+  const {posts, error} = useLoaderData<typeof loader>();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -100,8 +105,8 @@ const Posts = () => {
             value={searchParams.get("search") || ""}
           />
         </label>
-
-        {posts.length ? (
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {posts?.length ? (
           posts.map((post) => (
             <Link to={`/posts/${post._id}`} key={post._id}>
               <div className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer transition duration-300 hover:shadow-lg hover:-translate-y-1">
