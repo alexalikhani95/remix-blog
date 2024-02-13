@@ -6,4 +6,4 @@ test('contains text', async ({ page }) => {
   await page.click('text=Discover Posts');
 
   await expect(page).toHaveURL('http://localhost:3000/posts')
-});
+  });
