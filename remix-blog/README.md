@@ -39,4 +39,7 @@ Make sure to deploy the output of `remix build`
 
 ### Playwright
 
-To run playwright tests in the terminal, run the command npx playwright test. Run npx playwright test show-report to see the report.
+To run playwright tests in the terminal, run the command npx playwright test.
+ Run npx playwright test show-report to see the report.
+ Run npx playwright test --ui to see the tests with UI.
+

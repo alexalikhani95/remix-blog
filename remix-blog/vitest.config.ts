@@ -11,5 +11,6 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     setupFiles: ["./setup-test-env.ts"],
+    include: ['./tests/**/*.tsx'] // Specify the test files pattern
   },
 });
