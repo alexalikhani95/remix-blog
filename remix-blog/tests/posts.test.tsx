@@ -1,11 +1,38 @@
-// sum.test.js
-import { expect, test } from 'vitest'
-// import { sum } from './sum'
+import { createRemixStub } from "@remix-run/testing";
+import {
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { test, vi } from 'vitest'
+import Posts from "../app/routes/posts._index"
 
-export function sum(a, b) {
-    return a + b
-  }
-
-test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3)
+vi.mock("@sanity/client/stega", () => {
+  return {
+    createClient: vi.fn(),
+  };
 })
+
+test("renders loader data", async () => {
+
+  const RemixStub = createRemixStub([
+    {
+      path: "/posts",
+      Component: Posts,
+      loader() {
+        return [
+            {
+                _id: "1",
+                title: "hello",
+                body: []
+            }
+        ];
+      },
+    },
+  ]);
+
+  render(<RemixStub />);
+
+  await waitFor(() => screen.findByText("hello"));
+}
+)
