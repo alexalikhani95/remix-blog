@@ -46,7 +46,7 @@ test("The page renders with the correct data from the post displayed", async () 
     expect(screen.getByText("Back to Posts")).toBeInTheDocument()
   );
   expect(screen.getByText("First Post")).toBeInTheDocument()
-  expect(screen.getByText("Author 1")).toBeInTheDocument()
+  expect(screen.getByText("by Author 1")).toBeInTheDocument()
   expect(screen.getByText("Test content 1")).toBeInTheDocument()
 });
 
