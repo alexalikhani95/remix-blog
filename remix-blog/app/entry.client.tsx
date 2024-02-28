@@ -7,12 +7,24 @@
 import { RemixBrowser } from "@remix-run/react";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
+import { worker } from "./mocks/browser";
 
-startTransition(() => {
-  hydrateRoot(
-    document,
-    <StrictMode>
-      <RemixBrowser />
-    </StrictMode>
-  );
-});
+async function prepareApp() {
+  if (process.env.NODE_ENV === 'development') {
+
+    return worker.start()
+  }
+
+  return Promise.resolve()
+}
+
+prepareApp().then(() => {
+  startTransition(() => {
+    hydrateRoot(
+      document,
+      <StrictMode>
+        <RemixBrowser />
+      </StrictMode>,
+    )
+  })
+})
